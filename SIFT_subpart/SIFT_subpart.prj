@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ASCII"?>
+<openclProject:OpenCLProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:openclProject="http://www.xilinx.com/openclproject" name="SIFT_subpart" location="/home/centos/workspace/SIFT_subpart" platform="/home/centos/src/project_data/aws-fpga/Vitis/aws_platform/xilinx_aws-vu9p-f1_shell-v04261818_201920_2/xilinx_aws-vu9p-f1_shell-v04261818_201920_2.xpfm" platformUID="xilinx:aws-vu9p-f1:shell-v04261818:201920.2(custom)" systemProject="SIFT_subpart_system" sysConfig="config0_0" cpu="x86" cpuInstance="x86" os="Linux">
+  <configuration name="Emulation-SW" id="com.xilinx.accelerated.config.sw_emu.1413644144">
+    <configBuildOptions xsi:type="openclProject:OpenCLOptions" kernelDebug="true">
+      <binaryContainers name="krnl_gaussiandifference">
+        <kernels name="gaussiandiference" sourceFile="src/xf_gaussian_diff_accel.cpp">
+          <computeUnits name="gaussiandiference_1" slr="">
+            <args name="img_in" master="true" memory=""/>
+            <args name="sigma" memory=""/>
+            <args name="img_out" master="true" memory=""/>
+            <args name="rows" memory=""/>
+            <args name="cols" memory=""/>
+          </computeUnits>
+          <args name="img_in" master="true"/>
+          <args name="sigma"/>
+          <args name="img_out" master="true"/>
+          <args name="rows"/>
+          <args name="cols"/>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
+    <lastBuildOptions xsi:type="openclProject:OpenCLOptions" kernelDebug="true">
+      <binaryContainers name="krnl_gaussiandifference">
+        <kernels name="gaussiandiference" sourceFile="src/xf_gaussian_diff_accel.cpp">
+          <computeUnits name="gaussiandiference_1" slr="">
+            <args name="img_in" master="true" memory=""/>
+            <args name="sigma" memory=""/>
+            <args name="img_out" master="true" memory=""/>
+            <args name="rows" memory=""/>
+            <args name="cols" memory=""/>
+          </computeUnits>
+          <args name="img_in" master="true"/>
+          <args name="sigma"/>
+          <args name="img_out" master="true"/>
+          <args name="rows"/>
+          <args name="cols"/>
+        </kernels>
+      </binaryContainers>
+    </lastBuildOptions>
+  </configuration>
+  <configuration name="Emulation-HW" id="com.xilinx.accelerated.config.hw_emu.1312479980" dirty="true">
+    <configBuildOptions xsi:type="openclProject:OpenCLOptions" kernelDebug="true" target="hw_emu">
+      <binaryContainers name="krnl_gaussiandifference">
+        <kernels name="gaussiandiference" sourceFile="src/xf_gaussian_diff_accel.cpp">
+          <computeUnits name="gaussiandiference_1" slr=""/>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
+    <lastBuildOptions xsi:type="openclProject:OpenCLOptions" kernelDebug="true" target="hw_emu">
+      <binaryContainers name="krnl_gaussiandifference">
+        <kernels name="gaussiandiference" sourceFile="src/xf_gaussian_diff_accel.cpp">
+          <computeUnits name="gaussiandiference_1" slr=""/>
+        </kernels>
+      </binaryContainers>
+    </lastBuildOptions>
+  </configuration>
+  <configuration name="Hardware" id="com.xilinx.accelerated.config.hw.823428176" dirty="true">
+    <configBuildOptions xsi:type="openclProject:OpenCLOptions" target="hw">
+      <binaryContainers name="krnl_gaussiandifference">
+        <kernels name="gaussiandiference" sourceFile="src/xf_gaussian_diff_accel.cpp">
+          <computeUnits name="gaussiandiference_1" slr=""/>
+        </kernels>
+      </binaryContainers>
+    </configBuildOptions>
+  </configuration>
+</openclProject:OpenCLProject>
