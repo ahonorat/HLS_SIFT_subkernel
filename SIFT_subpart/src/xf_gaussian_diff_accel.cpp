@@ -16,6 +16,8 @@
 
 #include "xf_gaussian_diff_config.h"
 
+
+
 template<int T, int ROWS, int COLS, int NPC>
 void GradRot(xf::cv::Mat<T, ROWS, COLS, NPC> &ImgIn,
 		  xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> &ImgGrad,
@@ -121,13 +123,17 @@ void gaussiandiference(ap_uint<PTR_WIDTH>* img_in, float sigma, ap_uint<PTR_WIDT
 
     xf::cv::subtract<XF_CONVERT_POLICY_SATURATE, TYPE, HEIGHT, WIDTH, NPC1, MAXDELAY*NBBLURS>(imgInputDup2, imgBlurred3, imgSubGlob);
 
-    // seem to work:
-    //GradRot<TYPE, HEIGHT, WIDTH, NPC1>(imgSubGlob, imgGrdGlob, imgRotGlob);
+    GradRot<TYPE, HEIGHT, WIDTH, NPC1>(imgSubGlob, imgGrdGlob, imgRotGlob);
     // does not compile:
     //imgRotGlob.convertTo<TYPE>(imgOutput, XF_CONVERT_16S_TO_8U);
+    // shift: 0 or more if we want to divide
+    xf::cv::convertTo<XF_16SC1,XF_8UC1,HEIGHT,WIDTH,NPC1>(imgGrdGlob, imgOutput, XF_CONVERT_16S_TO_8U, 1);
+
+    // should call to synshronize imSubX for detectKeypoints
+//    xf::cv::delayMat<MAXDELAY,TYPE,HEIGHT,WIDTH,NPC1>(_src, _dst);
 
     // Convert output xf::cv::Mat object to output array:
-    xf::cv::xfMat2Array<PTR_WIDTH, TYPE, HEIGHT, WIDTH, NPC1>(imgSubGlob, img_out);
+    xf::cv::xfMat2Array<PTR_WIDTH, TYPE, HEIGHT, WIDTH, NPC1>(imgOutput, img_out);
 
     return;
 } // End of kernel

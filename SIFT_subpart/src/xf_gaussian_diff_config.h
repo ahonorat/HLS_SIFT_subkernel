@@ -25,6 +25,7 @@
 #include "imgproc/xf_duplicateimage.hpp"
 #include "imgproc/xf_delay.hpp"
 #include "core/xf_arithm.hpp"
+#include "core/xf_convert_bitdepth.hpp"
 #include "core/xf_magnitude.hpp"
 #include "core/xf_phase.hpp"
 #include "build/xf_config_params.h"
