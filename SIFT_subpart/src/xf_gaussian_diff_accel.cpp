@@ -17,6 +17,42 @@
 #include "xf_gaussian_diff_config.h"
 
 template<int T, int ROWS, int COLS, int NPC>
+void GradRot(xf::cv::Mat<T, ROWS, COLS, NPC> &ImgIn,
+		  xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> &ImgGrad,
+		  xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> &ImgRot) {
+
+#pragma HLS DATAFLOW
+	int rows = ImgIn.rows;
+	int cols = ImgIn.cols;
+    xf::cv::Mat<T, ROWS, COLS, NPC> imgInputDup_0(rows, cols);
+    xf::cv::Mat<T, ROWS, COLS, NPC> imgInputDup_1(rows, cols);
+//    xf::cv::Mat<T, ROWS, COLS, NPC> imgFilteredRows(rows, cols);
+//    xf::cv::Mat<T, ROWS, COLS, NPC> imgFilteredCols(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredRows16SC1(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredCols16SC1(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredRowsDup_0(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredColsDup_0(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredRowsDup_1(rows, cols);
+    xf::cv::Mat<XF_16SC1, ROWS, COLS, NPC> imgFilteredColsDup_1(rows, cols);
+
+    xf::cv::duplicateMat<T, ROWS, COLS, NPC>(ImgIn, imgInputDup_0, imgInputDup_1);
+    short int filterDiffRows[9] = {0, 0, 0, 1, 0, -1, 0, 0, 0};
+    short int filterDiffCols[9] = {0, 1, 0, 0, 0, 0, 0, -1, 0};
+    xf::cv::filter2D<XF_BORDER_CONSTANT, 3, 3, T, XF_16SC1, ROWS, COLS, NPC>(imgInputDup_0, imgFilteredRows16SC1, filterDiffRows, 0);
+    // done by the filter
+    //    imgFilteredRows.convertTo<XF_16SC1>(imgFilterRows16SC1, XF_CONVERT_8U_TO_16S);
+    xf::cv::duplicateMat<XF_16SC1, ROWS, COLS, NPC>(imgFilteredRows16SC1, imgFilteredRowsDup_0, imgFilteredRowsDup_1);
+    xf::cv::filter2D<XF_BORDER_CONSTANT, 3, 3, T, XF_16SC1, ROWS, COLS, NPC>(imgInputDup_1, imgFilteredCols16SC1, filterDiffCols, 0);
+    // done by the filter
+    //    imgFilteredCols.convertTo<XF_16SC1>(imgFilterCols16SC1, XF_CONVERT_8U_TO_16S);
+    xf::cv::duplicateMat<XF_16SC1, ROWS, COLS, NPC>(imgFilteredCols16SC1, imgFilteredColsDup_0, imgFilteredColsDup_1);
+
+    xf::cv::magnitude<XF_L2NORM, XF_16SC1, XF_16SC1, ROWS, COLS, NPC>(imgFilteredColsDup_0, imgFilteredRowsDup_0, ImgGrad);
+    xf::cv::phase<XF_RADIANS, XF_16SC1, XF_16SC1, ROWS, COLS, NPC>(imgFilteredColsDup_1, imgFilteredRowsDup_1, ImgRot);
+
+}
+
+template<int T, int ROWS, int COLS, int NPC>
 void BlurSub (xf::cv::Mat<T, ROWS, COLS, NPC> &ImgIn,
 			  xf::cv::Mat<T, ROWS, COLS, NPC> &ImgBlurred,
 			  xf::cv::Mat<T, ROWS, COLS, NPC> &ImgSub,
@@ -62,6 +98,10 @@ void gaussiandiference(ap_uint<PTR_WIDTH>* img_in, float sigma, ap_uint<PTR_WIDT
     xf::cv::Mat<TYPE, HEIGHT, WIDTH, NPC1> imgSub2(rows, cols);
     xf::cv::Mat<TYPE, HEIGHT, WIDTH, NPC1> imgBlurred3(rows, cols);
     xf::cv::Mat<TYPE, HEIGHT, WIDTH, NPC1> imgSub3(rows, cols);
+    xf::cv::Mat<TYPE, HEIGHT, WIDTH, NPC1> imgSubGlob(rows, cols);
+
+    xf::cv::Mat<XF_16SC1, HEIGHT, WIDTH, NPC1> imgRotGlob(rows, cols);
+    xf::cv::Mat<XF_16SC1, HEIGHT, WIDTH, NPC1> imgGrdGlob(rows, cols);
 
 
 // clang-format off
@@ -79,10 +119,15 @@ void gaussiandiference(ap_uint<PTR_WIDTH>* img_in, float sigma, ap_uint<PTR_WIDT
     BlurSub<TYPE, HEIGHT, WIDTH, NPC1>(imgBlurred1, imgBlurred2, imgSub2, sigma);
     BlurSub<TYPE, HEIGHT, WIDTH, NPC1>(imgBlurred2, imgBlurred3, imgSub3, sigma);
 
-    xf::cv::subtract<XF_CONVERT_POLICY_SATURATE, TYPE, HEIGHT, WIDTH, NPC1, MAXDELAY*NBBLURS>(imgInputDup2, imgBlurred3, imgOutput);
+    xf::cv::subtract<XF_CONVERT_POLICY_SATURATE, TYPE, HEIGHT, WIDTH, NPC1, MAXDELAY*NBBLURS>(imgInputDup2, imgBlurred3, imgSubGlob);
+
+    // seem to work:
+    //GradRot<TYPE, HEIGHT, WIDTH, NPC1>(imgSubGlob, imgGrdGlob, imgRotGlob);
+    // does not compile:
+    //imgRotGlob.convertTo<TYPE>(imgOutput, XF_CONVERT_16S_TO_8U);
 
     // Convert output xf::cv::Mat object to output array:
-    xf::cv::xfMat2Array<PTR_WIDTH, TYPE, HEIGHT, WIDTH, NPC1>(imgOutput, img_out);
+    xf::cv::xfMat2Array<PTR_WIDTH, TYPE, HEIGHT, WIDTH, NPC1>(imgSubGlob, img_out);
 
     return;
 } // End of kernel

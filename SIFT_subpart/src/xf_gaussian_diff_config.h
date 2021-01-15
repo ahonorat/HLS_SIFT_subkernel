@@ -21,24 +21,27 @@
 #include "common/xf_common.hpp"
 #include "common/xf_utility.hpp"
 #include "imgproc/xf_gaussian_filter.hpp"
+#include "imgproc/xf_custom_convolution.hpp"
 #include "imgproc/xf_duplicateimage.hpp"
 #include "imgproc/xf_delay.hpp"
 #include "core/xf_arithm.hpp"
-#include "xf_config_params.h"
+#include "core/xf_magnitude.hpp"
+#include "core/xf_phase.hpp"
+#include "build/xf_config_params.h"
 
 #define WIDTH 128 //3840
 #define HEIGHT 128 //2160
 
-//#if FILTER_SIZE_3
-//#define FILTER_WIDTH 3
-//#define FILTER 3
-//#elif FILTER_SIZE_5
+#if FILTER_SIZE_3
+#define FILTER_WIDTH 3
+#define FILTER 3
+#elif FILTER_SIZE_5
 #define FILTER_WIDTH 5
 #define FILTER 5
-//#elif FILTER_SIZE_7
-//#define FILTER_WIDTH 7
-//#define FILTER 7
-//#endif
+#elif FILTER_SIZE_7
+#define FILTER_WIDTH 7
+#define FILTER 7
+#endif
 
 #define MAXDELAY (WIDTH * (FILTER_WIDTH + 1)) // 15360
 
